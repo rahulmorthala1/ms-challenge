@@ -62,7 +62,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 %output application/json
 ---
 {
-	"message" : "Array out of range. Please check your input parameters"
+	"message" : "Array out of range. Please Enter any number from 1 to 200"
 }]]></dw:set-payload>
                 </dw:transform-message>
             </otherwise>

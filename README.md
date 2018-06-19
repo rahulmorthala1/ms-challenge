@@ -83,7 +83,23 @@ response:
     "200 : 200"
 ]
 
-Case 3) localhost:8081/api/ms3-challange?int1=200
+
+Case 3) localhost:8081/api/ms3-challange?int1=190&int2=210
+
+request parameters
+
+int1 = 200
+int2 = 210
+
+{
+	"message" : "Array out of range. Please Enter any number from 1 to 200"
+}
+
+In the problem statement range limit is from 1 to 200
+
+# Error scenario
+
+Case 4) localhost:8081/api/ms3-challange?int1=200
 
 only one input parameter is entered 
 
