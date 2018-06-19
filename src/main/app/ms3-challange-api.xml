@@ -68,6 +68,16 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
             </otherwise>
         </choice>
         <logger message="#[payload]" level="ERROR" doc:name="Logger"/>
+        <choice-exception-strategy doc:name="Exception Strategy">
+            <catch-exception-strategy doc:name="No input parameters exception" when="#[exception.causeMatches('com.mulesoft.weave.mule.exception.WeaveExecutionException')]">
+                <set-payload doc:name="Set Payload" value="Please Enter two input query parameters."/>
+                <set-property propertyName="http.status" value="400" doc:name="Property"/>
+            </catch-exception-strategy>
+            <catch-exception-strategy doc:name="Other exceptions">
+                <set-payload value="Time out. Internal Server Error" doc:name="Set Payload"/>
+                <set-property propertyName="http.status" value="500" doc:name="Property"/>
+            </catch-exception-strategy>
+        </choice-exception-strategy>
 
     </flow>
 </mule>
