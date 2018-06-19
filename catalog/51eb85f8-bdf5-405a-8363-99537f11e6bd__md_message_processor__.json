@@ -1,0 +1,12 @@
+{
+    "inputMessageMetadata": {
+        "flowVariables": {
+            "entries": {}
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {}
+    },
+    "id": "51eb85f8-bdf5-405a-8363-99537f11e6bd",
+    "version": "5.2.0.0"
+}

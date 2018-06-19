@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd">
+    <http:listener-config name="HTTP_Listener_Configuration" host="localhost" port="8081" doc:name="HTTP Listener Configuration"/>
+    <flow name="ms3-challange-apiFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration" path="/api/ms3-challange" allowedMethods="GET" doc:name="HTTP"/>
+        <set-variable variableName="int1" value="#[message.inboundProperties.'http.query.params'.int1]" doc:name="Integer 1 Var"/>
+        <set-variable variableName="int2" value="#[message.inboundProperties.'http.query.params'.int2]" doc:name="Interger 2 Var"/>
+        <dw:transform-message doc:name="range-list-dw" metadata:id="e0f5b86f-56cb-4a30-a25f-caf82671f028">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+[flowVars.int1 .. flowVars.int2]
+]]></dw:set-payload>
+        </dw:transform-message>
+        <set-variable variableName="entries" value="#[[]]" doc:name="Empty list Var"/>
+        <choice doc:name="Choice">
+            <when expression="#[flowVars.int1 &gt;= 1 &amp;&amp; flowVars.int2 &lt;= 200]">
+                <logger message="Array range is within limit" level="ERROR" doc:name="Logger"/>
+                        <foreach collection="#[payload]" doc:name="For Each">
+            <choice doc:name="Choice">
+                <when expression="#[payload%3 == 0 and payload%7 == 0]">
+                    <logger message="Print MS3 - #[payload]" level="INFO" doc:name="Logger"/>
+                    <set-payload value="#[payload] : MS3 and ME" doc:name="Set Payload"/>
+                </when>
+                <when expression="#[payload%3 == 0]">
+                    <logger message="print ME - #[payload]" level="INFO" doc:name="Logger"/>
+                    <set-payload value="#[payload] : ME" doc:name="Set Payload"/>
+                </when>
+                        <when expression="#[payload%7 == 0]">
+                            <logger message="print MS3 and ME - #[payload]" level="INFO" doc:name="Logger"/>
+                            <set-payload value="#[payload] : MS3" doc:name="Set Payload"/>
+                        </when>
+                <otherwise>
+                            <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+                            <set-payload value="#[payload] : #[payload]" doc:name="Set Payload"/>
+                </otherwise>
+            </choice>
+            <expression-component doc:name="add-list-items-expression"><![CDATA[#[flowVars['entries'].add(payload)]]]></expression-component>
+        </foreach>
+                <logger message="#[flowVars.entries]" level="ERROR" doc:name="Logger"/>
+                <dw:transform-message doc:name="convert-range-dw" metadata:id="51eb85f8-bdf5-405a-8363-99537f11e6bd">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+	flowVars.entries
+
+]]></dw:set-payload>
+                </dw:transform-message>
+            </when>
+            <otherwise>
+                <logger message="Array range is more than expected" level="ERROR" doc:name="Logger"/>
+                <dw:transform-message doc:name="out-of-range-dw">
+                    <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	"message" : "Array out of range. Please check your input parameters"
+}]]></dw:set-payload>
+                </dw:transform-message>
+            </otherwise>
+        </choice>
+        <logger message="#[payload]" level="ERROR" doc:name="Logger"/>
+
+    </flow>
+</mule>
