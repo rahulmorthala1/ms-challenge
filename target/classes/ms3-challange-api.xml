@@ -27,7 +27,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
                         <foreach collection="#[payload]" doc:name="For Each">
             <choice doc:name="Choice">
                 <when expression="#[payload%3 == 0 and payload%7 == 0]">
-                    <logger message="Print MS3 - #[payload]" level="INFO" doc:name="Logger"/>
+                    <logger message="Print MS3 and ME - #[payload]" level="INFO" doc:name="Logger"/>
                     <set-payload value="#[payload] : MS3 and ME" doc:name="Set Payload"/>
                 </when>
                 <when expression="#[payload%3 == 0]">
@@ -35,7 +35,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
                     <set-payload value="#[payload] : ME" doc:name="Set Payload"/>
                 </when>
                         <when expression="#[payload%7 == 0]">
-                            <logger message="print MS3 and ME - #[payload]" level="INFO" doc:name="Logger"/>
+                            <logger message="print MS3 - #[payload]" level="INFO" doc:name="Logger"/>
                             <set-payload value="#[payload] : MS3" doc:name="Set Payload"/>
                         </when>
                 <otherwise>
