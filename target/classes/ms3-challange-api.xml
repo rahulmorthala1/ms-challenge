@@ -17,7 +17,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-[flowVars.int1 .. flowVars.int2]
+[flowVars.int1 .. flowVars.int2] when flowVars.int1 < flowVars.int2 otherwise [flowVars.int2 .. flowVars.int1]
 ]]></dw:set-payload>
         </dw:transform-message>
         <set-variable variableName="entries" value="#[[]]" doc:name="Empty list Var"/>
@@ -69,12 +69,16 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
         </choice>
         <logger message="#[payload]" level="ERROR" doc:name="Logger"/>
         <choice-exception-strategy doc:name="Exception Strategy">
-            <catch-exception-strategy doc:name="No input parameters exception" when="#[exception.causeMatches('com.mulesoft.weave.mule.exception.WeaveExecutionException')]">
-                <set-payload doc:name="Set Payload" value="Please Enter two input query parameters."/>
+            <catch-exception-strategy doc:name="input parameters exception" when="#[exception.causeMatches('com.mulesoft.weave.mule.exception.WeaveExecutionException')]">
+                <set-payload doc:name="Set Payload" value="{
+	&quot;message&quot; : &quot;Bad request. Please check the query paramters you entered or Enter two input query parameters.&quot;
+}" mimeType="application/json"/>
                 <set-property propertyName="http.status" value="400" doc:name="Property"/>
             </catch-exception-strategy>
             <catch-exception-strategy doc:name="Other exceptions">
-                <set-payload value="Time out. Internal Server Error" doc:name="Set Payload"/>
+                <set-payload value="{
+	&quot;message&quot; : &quot;Time out. Internal Server Error&quot;
+}" doc:name="Set Payload" mimeType="application/json"/>
                 <set-property propertyName="http.status" value="500" doc:name="Property"/>
             </catch-exception-strategy>
         </choice-exception-strategy>
